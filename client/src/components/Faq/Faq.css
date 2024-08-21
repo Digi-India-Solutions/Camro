@@ -1,0 +1,23 @@
+.faq .accordion-button {
+    background-color: #f8f9fa;
+    color: var(--color-main);
+    font-weight: 500;
+}
+
+.faq .accordion-button:focus {
+    box-shadow: none;
+}
+
+.faq .accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: var(--color-main);
+}
+
+.faq .accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml;charset=UTF8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1.5 8h13M8 1.5l6.5 6.5L8 14.5'/%3e%3c/svg%3e");
+}
+
+.faq .accordion-body {
+    background-color: #e9ecef;
+    color: #333;
+}

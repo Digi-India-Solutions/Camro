@@ -1,0 +1,8 @@
+.highlight {
+    font-weight: 500;
+    color: var(--color-red);
+}
+
+.custom-paragraph {
+    margin-bottom: 1.5rem;
+}

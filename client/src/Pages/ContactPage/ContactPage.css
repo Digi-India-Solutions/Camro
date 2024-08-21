@@ -1,0 +1,59 @@
+#contact h2.h1{
+    color: var(--color-main);
+    margin-top: 2rem;
+}
+
+.contact-info .social-icons{
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+.contact-info .social-icons a{
+    height: 2.2rem;
+    width: 2.2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--color-main);
+    text-decoration: none;
+    color: var(--color-main);
+    transition: var(--transition-3);
+}
+.contact-info .social-icons a:hover{
+    background: var(--color-main);
+    color: white;
+}
+.contact-info .list-unstyled li{
+    padding-bottom: 1rem;
+    font-weight: 500;
+}
+.contact-info .list-unstyled a{
+    text-decoration: none;
+    color: var(--color-main);
+    transition: var(--transition-3);
+    font-weight: 400;
+}
+.contact-info .list-unstyled a:hover{
+    text-decoration: underline;
+    color: var(--color-main);
+    transition: var(--transition-3);
+}
+
+
+.contact-form input ,
+.contact-form textarea{
+    padding: 0.4rem 0.8rem;
+    background: var(--color-green-light);
+    background: #F0F1F8;
+    margin-bottom: 1rem;
+    width: 100%;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+.contact-form button[type="submit"]{
+    background: var(--color-main) !important;
+    border: none;
+}
+
+

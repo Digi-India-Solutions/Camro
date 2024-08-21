@@ -1,0 +1,19 @@
+.subhead{
+    text-align: center;
+    margin: 2rem 0rem;
+}
+
+.subhead h2{
+    font-weight: 600;
+    font-size: 2.2rem;
+    color: var(--color-main-light);
+    display: inline-block;
+    border-bottom: 2px solid red;
+}
+
+
+
+
+
+
+
