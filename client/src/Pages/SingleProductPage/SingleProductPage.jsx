@@ -1,14 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './SingleProductPage.css'
 import axios from 'axios'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Subhead from '../../components/Subhead/Subhead';
 import MetaTag from '../../components/Meta/MetaTag';
+import Sidecart from '../../components/sidecart/Sidecart';
+
+
+
 const SingleProductPage = () => {
     const { id } = useParams()
-    console.log(id)
+    // console.log(id)
+
+    const navigate = useNavigate();
     const [singleData, setData] = useState([]);
     const [info, setInfo] = useState("");
     const [sizes, setSize] = useState([]);
@@ -111,6 +117,32 @@ const SingleProductPage = () => {
 
             // Show a success message
             toast.success('Product added to cart');
+        }
+    };
+
+    const [cartOpen, setCartOpen] = useState(false)
+    const handleCartOpen = () => {
+      setCartOpen(!cartOpen)
+    }
+
+    const handleCartClose = () => {
+        setCartOpen(false)
+      }
+    
+    const handleBuyNow = () => {
+        const token = sessionStorage.getItem('token');
+        
+        if (token) {
+          handleAddToCart();
+        //   navigate('/Make-Order-Complete');
+        handleCartOpen()
+        } else {
+          toast.error('Please log in to proceed');
+          
+          // Redirect to login page after 2 seconds
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
         }
     };
 
@@ -253,9 +285,10 @@ const SingleProductPage = () => {
                                         <i className="fa-solid fa-chevron-up" id="plus" onClick={handleIncreaseNumber}></i>
                                     </div>
                                     <div className="addToCart">
-                                        <button onClick={handleAddToCart}>Add To Cart</button>
+                                        {/* <button onClick={handleAddToCart}>Add To Cart</button> */}
                                     </div>
-
+                                    <button className='new-button' onClick={handleAddToCart}>Add To Cart</button>
+                                    <button className='new-button' onClick={handleBuyNow}>Buy Now</button>
                                 </div>
 
                                 <p className="desc my-2 ">{singleData.Desc}</p>
@@ -345,6 +378,7 @@ const SingleProductPage = () => {
                 </div>
             </section>
 
+            <Sidecart cartOpen={cartOpen} handleCartClose={handleCartClose} />
         </>
     )
 }
