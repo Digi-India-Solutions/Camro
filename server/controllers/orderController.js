@@ -161,11 +161,47 @@ exports.orderForAdmin = async (req, res) => {
 };
 
 //update order
+// exports.UpdateOrderStatus = async (req, res) => {
+//   try {
+//     const { status, orderId } = req.body;
+
+//     console.log(req.body)
+
+//     // Input validation
+//     if (!status || !orderId) {
+//       return res.status(400).json({ msg: "Missing status or orderId in request body" });
+//     }
+
+//     // Find order details
+//     const orderDetails = await Order.findById(orderId);
+
+//     // Check if orderDetails is null, indicating that the order with the given ID was not found
+//     if (!orderDetails) {
+//       return res.status(404).json({ msg: "Order not found" });
+//     }
+
+//     // Find and update the order status
+//     const updatedOrder = await Order.findByIdAndUpdate(
+//       orderId,
+//       { $set: { orderStatus: status } },
+//       { new: true }
+//     );
+
+
+
+//     // For any other status update
+//     return res.json({ msg: "Order status updated successfully", order: updatedOrder });
+
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ msg: "Internal Server Error", error: error.message });
+//   }
+// };
 exports.UpdateOrderStatus = async (req, res) => {
   try {
     const { status, orderId } = req.body;
 
-    console.log(req.body)
+    console.log(req.body);
 
     // Input validation
     if (!status || !orderId) {
@@ -173,7 +209,8 @@ exports.UpdateOrderStatus = async (req, res) => {
     }
 
     // Find order details
-    const orderDetails = await Order.findById(orderId);
+    const orderDetails = await Order.findById(orderId).populate('user');
+    console.log(orderDetails);
 
     // Check if orderDetails is null, indicating that the order with the given ID was not found
     if (!orderDetails) {
@@ -187,6 +224,104 @@ exports.UpdateOrderStatus = async (req, res) => {
       { new: true }
     );
 
+    // Send email to the user
+    const user = orderDetails.user; // Fetching user details from populated data
+    if (user) {
+      const options = {
+        email: user.Email,
+        subject: `Order Status Updated - Your Order #${orderDetails._id}`,
+        message: `
+          <html>
+            <head>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 0;
+                  padding: 0;
+                  background-color: #f6f6f6;
+                }
+                .container {
+                  width: 100%;
+                  background-color: #ffffff;
+                  border-radius: 8px;
+                  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                  margin: 20px auto;
+                  max-width: 600px;
+                }
+                .header {
+                  background-color: #f8f8f8;
+                  padding: 20px;
+                  text-align: center;
+                  color: #ffffff;
+                  border-radius: 8px 8px 0 0;
+                }
+                .header h1{
+                  color:#000;
+                }
+                .header img {
+                  max-width: 150px;
+                  height: auto;
+                }
+                .content {
+                  padding: 20px;
+                  text-align: center;
+                }
+                .content h2 {
+                  color: #dd2c1c;
+                  margin-bottom: 10px;
+                }
+                .content p {
+                  font-size: 16px;
+                  color: #333333;
+                  margin: 15px 0;
+                }
+                .footer {
+                  text-align: center;
+                  padding: 20px;
+                  font-size: 12px;
+                  color: #999999;
+                  border-top: 1px solid #eeeeee;
+                  background-color: #f6f6f6;
+                  border-radius: 0 0 8px 8px;
+                }
+                .contact-info {
+                  margin-top: 20px;
+                  font-size: 14px;
+                }
+                .contact-info p {
+                  margin: 5px 0;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <img src="https://res.cloudinary.com/dohzhn0ny/image/upload/v1725689947/logo-main_eq5q1c.png" alt="Company Logo" />
+                  <h1>Order Status Updated</h1>
+                </div>
+                <div class="content">
+                  <h2>Hello ${user.Name},</h2>
+                  <p>Your order with ID <strong>#${orderDetails._id}</strong> has been updated to the following status:</p>
+                  <p><strong>Status: ${status}</strong></p>
+                  <p>If you have any questions or need further assistance, feel free to reach out to us:</p>
+                  <div class="contact-info">
+                    <p><strong>Phone:</strong> +91-8595722922</p>
+                    <p><strong>Email:</strong> <a href="mailto:sale.camrosteel@gmail.com">sale.camrosteel@gmail.com</a></p>
+                  </div>
+                </div>
+                <div class="footer">
+                  &copy; ${new Date().getFullYear()} Camro Company. All rights reserved.
+                </div>
+              </div>
+            </body>
+          </html>
+        `
+      };
+    
+      await sendEmail(options);
+    }
+    
+    
 
 
     // For any other status update
@@ -197,6 +332,7 @@ exports.UpdateOrderStatus = async (req, res) => {
     return res.status(500).json({ msg: "Internal Server Error", error: error.message });
   }
 };
+
 
 
 exports.getTransactionID = async (req, res) => {
