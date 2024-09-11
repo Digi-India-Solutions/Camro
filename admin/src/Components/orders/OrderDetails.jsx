@@ -17,6 +17,7 @@ const OrderDetails = () => {
     try {
       const response = await axios.get(`https://api.camrosteel.com/api/v1/single-order/${id}`);
       setOrder(response.data.data);
+      // console.log(response.data.data);
 
       // Fetch user details automatically
       const res = await axios.get(`https://api.camrosteel.com/api/v1/finduserbyid/${response.data.data.user}`);
@@ -29,6 +30,20 @@ const OrderDetails = () => {
   useEffect(() => {
     fetchOrderDetails();
   }, [id]);
+
+  const handleStatusUpdate = async () => {
+    try {
+      const res = await axios.post(`https://api.camrosteel.com/api/v1/update-order`, {
+        status: newStatus,
+        orderId: id
+      });
+      setStatusUpdated(true);
+      // console.log(res.data);
+      fetchOrderDetails();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
 
   const handleDimensionChange = (e) => {
     setDimensions({
@@ -172,62 +187,92 @@ const OrderDetails = () => {
               </tbody>
             </table>
 
-            {/* Dimensions Form */}
-            <h2 className="text-lg font-bold mt-6 mb-2">Update Dimensions</h2>
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label className="block font-bold">Weight (kg):</label>
-                <input
-                  type="number"
-                  name="weight"
-                  value={dimensions.weight}
-                  onChange={handleDimensionChange}
-                  className="border p-2 rounded w-full"
-                  step="0.01"
-                />
-              </div>
-              <div>
-                <label className="block font-bold">Length (cm):</label>
-                <input
-                  type="number"
-                  name="length"
-                  value={dimensions.length}
-                  onChange={handleDimensionChange}
-                  className="border p-2 rounded w-full"
-                />
-              </div>
-              <div>
-                <label className="block font-bold">Breadth (cm):</label>
-                <input
-                  type="number"
-                  name="breadth"
-                  value={dimensions.breadth}
-                  onChange={handleDimensionChange}
-                  className="border p-2 rounded w-full"
-                />
-              </div>
-              <div>
-                <label className="block font-bold">Height (cm):</label>
-                <input
-                  type="number"
-                  name="height"
-                  value={dimensions.height}
-                  onChange={handleDimensionChange}
-                  className="border p-2 rounded w-full"
-                />
-              </div>
-            </form>
 
-            {/* Proceed to Shiprocket */}
-            <button
-              onClick={sendOrderToShiprocket}
-              className={`bg-green-500 text-white px-4 py-2 rounded ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Sending to Shiprocket...' : 'Proceed with Shiprocket'}
-            </button>
+
+            {!statusUpdated && (
+              <div className="mt-4">
+                <select
+                  value={newStatus}
+                  onChange={e => setNewStatus(e.target.value)}
+                  className="border rounded p-2 mb-2"
+                >
+                  <option value="">All Status</option>
+                  <option value="Order Confirmation Pending">Order Confirmation Pending</option>
+                  <option value="Confirmed">Confirmed order</option>
+                  <option value="Packed">Packed</option>
+                  <option value="Dispatched">Order Dispatch</option>
+                  <option value="Returned">Order Return</option>
+                  <option value="Returned">Cancel Order</option>
+                </select>
+                <button onClick={handleStatusUpdate} className="bg-blue-500 text-white mx-2 px-4 py-2 rounded">Update Status</button>
+              </div>
+            )}
+
+
+            {order.orderStatus === "Dispatched" && (
+              <>
+                {/* Dimensions Form */}
+                <h2 className="text-lg font-bold mt-6 mb-2">Update Dimensions</h2>
+                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                  <div>
+                    <label className="block font-bold">Weight (kg):</label>
+                    <input
+                      type="number"
+                      name="weight"
+                      value={dimensions.weight}
+                      onChange={handleDimensionChange}
+                      className="border p-2 rounded w-full"
+                      step="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold">Length (cm):</label>
+                    <input
+                      type="number"
+                      name="length"
+                      value={dimensions.length}
+                      onChange={handleDimensionChange}
+                      className="border p-2 rounded w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold">Breadth (cm):</label>
+                    <input
+                      type="number"
+                      name="breadth"
+                      value={dimensions.breadth}
+                      onChange={handleDimensionChange}
+                      className="border p-2 rounded w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold">Height (cm):</label>
+                    <input
+                      type="number"
+                      name="height"
+                      value={dimensions.height}
+                      onChange={handleDimensionChange}
+                      className="border p-2 rounded w-full"
+                    />
+                  </div>
+                </form>
+
+                {/* Proceed to Shiprocket */}
+                <button
+                  onClick={sendOrderToShiprocket}
+                  className={`bg-green-500 my-5  text-white px-4 py-2 rounded ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Sending to Shiprocket...' : 'Proceed with Shiprocket'}
+                </button>
+              </>
+            )}
+
+
 
           </div>
+
+
 
           {/* Right side: Product images and details */}
           <div className="border p-4 rounded shadow">

@@ -17,7 +17,7 @@ const Orders = () => {
     const fetchOrdersWithUsers = async () => {
       try {
         const response = await axios.get('https://api.camrosteel.com/api/v1/admin-order');
-        const orders = response.data.data;
+        const orders = response.data.data.reverse();
 
         const ordersWithUsers = await Promise.all(
           orders.map(async (order) => {
