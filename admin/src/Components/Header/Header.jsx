@@ -32,6 +32,10 @@ const Header = () => {
                     </div>
                     Create-Products
                 </Link>
+                <Link to="/shiprocket/login" role="button" tabIndex="0" className="flex items-center w-full mb-1 p-3 rounded-lg text-start leading-tight transition-all hover:bg-blue-50 hover:bg-opacity-80 focus:bg-blue-50 focus:bg-opacity-80 active:bg-gray-50 active:bg-opacity-80 hover:text-blue-900 focus:text-blue-900 active:text-blue-900 outline-none">
+                    Shiprocket Login
+                </Link>
+                
                 <Link to="/Categories" role="button" tabIndex="0" className="flex items-center w-full mb-1 p-3 rounded-lg text-start leading-tight transition-all hover:bg-blue-50 hover:bg-opacity-80 focus:bg-blue-50 focus:bg-opacity-80 active:bg-gray-50 active:bg-opacity-80 hover:text-blue-900 focus:text-blue-900 active:text-blue-900 outline-none">
                     <div className="grid place-items-center mr-4 text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-5 w-5">

@@ -24,6 +24,8 @@ import CreateTags from "../Components/Products/CreateTags"
 import CategoryManager from "../Components/MainCategories/CategoryManager"
 import AllVoucher from "../Components/Vouchers/AllVoucher"
 import CreateVoucher from "../Components/Vouchers/AddVoucher"
+import ShipRocketLogin from "../Components/ShipRocket/ShipRocketLogin"
+import MakeOrderReadyToShip from "../Components/ShipRocket/MakeOrderReadyToShip"
 const Home = () => {
   return (
     <div className="w-full flex">
@@ -63,8 +65,10 @@ const Home = () => {
             <Route path={"/all-voucher"} element={<AllVoucher/>}/>   {/* // All Vouchers */}
             <Route path={"/add-voucher"} element={<CreateVoucher/>}/>
 
+            <Route path={"/add-voucher"} element={<CreateVoucher/>}/>
 
-
+            <Route path="/shiprocket/login" element={<ShipRocketLogin />} />
+            <Route path="/shiprocket/order/:id" element={<MakeOrderReadyToShip />} />
 
 
             </Routes>

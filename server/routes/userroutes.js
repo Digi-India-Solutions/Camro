@@ -13,6 +13,7 @@ const {   CreateMainCategorey,
     GetSubCategreyByMainCategorey,
     deleteMainCategorey } = require('../controllers/MainCategory')
 const { getAllVouchers, applyVoucher, createVoucher, activateVoucher, deactivateVoucher } = require('../controllers/VoucherController')
+const { ShipRocketLogin, MakeOrderReadyToShip } = require('../controllers/Shiprocket')
 const cloudinary = require('cloudinary').v2;
 // const fs = require('fs');
 // const path = require('path');
@@ -100,5 +101,9 @@ router.post('/vouchers/create-vouchers', createVoucher)
 router.put('/vouchers/activateVoucher/:id', activateVoucher)
 router.put('/vouchers/deactivateVoucher/:id', deactivateVoucher)
 router.delete('/vouchers/deleteVoucher/:id', deleteVoucher)
+
+//====================SHIP-ROCKET  ROUTES=========================//
+router.post('/ship-rocket-login', ShipRocketLogin)
+router.post('/order-ship/:id', MakeOrderReadyToShip)
 
 module.exports = router 
