@@ -18,3 +18,8 @@
     height: 100%;
     object-fit: cover;
 }
+
+.swiper-pagination-bullet-active {
+    opacity: var(--swiper-pagination-bullet-opacity, 1);
+    background: var(--color-main, var(--swiper-theme-color));
+}

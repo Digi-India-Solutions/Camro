@@ -131,30 +131,16 @@ exports.getAllUser = async (req, res) => {
 // Register
 exports.RegisterUser = async (req, res) => {
   try {
-    // console.log(req.body)
     const { Name, Email, Password, ContactNumber, Role } = req.body;
 
-    // Validate if no any empty field
+    // Validate if any fields are empty
     const otp = generateOtp();
     const emptyFields = [];
 
-    if (!Name) {
-      emptyFields.push('Name');
-    }
-
-    if (!Email) {
-      emptyFields.push('Email');
-    }
-
-    if (!ContactNumber) {
-      emptyFields.push('Number');
-    }
-
-    if (!Password) {
-      emptyFields.push('Password');
-    }
-
-
+    if (!Name) emptyFields.push('Name');
+    if (!Email) emptyFields.push('Email');
+    if (!ContactNumber) emptyFields.push('Contact Number');
+    if (!Password) emptyFields.push('Password');
 
     if (emptyFields.length > 0) {
       return res.status(400).json({
@@ -163,8 +149,9 @@ exports.RegisterUser = async (req, res) => {
       });
     }
 
-    // Check if the email already exists in the database
+    // Check if email or contact number already exists in the database
     const existingUser = await User.findOne({ Email });
+    const existingUserByContactNumber = await User.findOne({ ContactNumber });
 
     if (existingUser) {
       return res.status(409).json({
@@ -172,23 +159,27 @@ exports.RegisterUser = async (req, res) => {
         message: 'Email address is already registered',
       });
     }
-    const existingUserByContactNumber = await User.findOne({ ContactNumber });
+
     if (existingUserByContactNumber) {
       return res.status(409).json({
         success: false,
         message: 'Contact number is already registered',
       });
     }
-    // Save a new user
+
+    // Create and save new user
     const newUser = new User({
       Name,
       Email,
       Password,
       ContactNumber,
       Role,
-      OtpForVerification: otp
+      OtpForVerification: otp,
     });
 
+    await newUser.save();
+
+    // Prepare email for sending verification code
     const emailOptions = {
       email: Email,
       subject: 'Welcome To Camro Company - Verification Code Inside',
@@ -196,103 +187,72 @@ exports.RegisterUser = async (req, res) => {
         <html>
           <head>
             <style>
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f6f6f6;
-          }
-          .container {
-            width: 100%;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 20px auto;
-            max-width: 600px;
-          }
-          .header {
-            background-color: #0044cc;
-            padding: 10px;
-            border-radius: 10px 10px 0 0;
-            text-align: center;
-            color: #ffffff;
-          }
-          .content {
-            padding: 20px;
-            text-align: center;
-          }
-          .content h1 {
-            color: #333333;
-          }
-          .content p {
-            font-size: 16px;
-            color: #666666;
-          }
-          .verification-code {
-            display: inline-block;
-            margin: 20px 0;
-            padding: 10px 20px;
-            font-size: 24px;
-            color: #ffffff;
-            background-color: #0044cc;
-            border-radius: 5px;
-          }
-          .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: #999999;
-          }.example {
-    display: -ms-grid;
-    display: grid;
-    -webkit-transition: all .5s;
-    -o-transition: all .5s;
-    transition: all .5s;
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
-    background: -webkit-gradient(linear, left top, left bottom, from(white), to(black));
-    background: -o-linear-gradient(top, white, black);
-    background: linear-gradient(to bottom, white, black);
-}
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f6f6f6;
+              }
+              .container {
+                width: 100%;
+                max-width: 600px;
+                background-color: #ffffff;
+                margin: 20px auto;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
+              .header {
+                background-color: #0044cc;
+                color: #ffffff;
+                padding: 10px;
+                text-align: center;
+                border-radius: 10px 10px 0 0;
+              }
+              .content {
+                padding: 20px;
+                text-align: center;
+              }
+              .verification-code {
+                background-color: #0044cc;
+                color: white;
+                padding: 10px;
+                margin: 20px 0;
+                border-radius: 5px;
+                font-size: 24px;
+              }
+              .footer {
+                text-align: center;
+                font-size: 12px;
+                color: #999999;
+                padding: 20px;
+              }
             </style>
           </head>
           <body>
-            <div className="container">
-              <div className="header">
-                <h2>Welcome to Camro </h2>
+            <div class="container">
+              <div class="header">
+                <h2>Welcome to Camro</h2>
               </div>
-              <div className="content">
+              <div class="content">
                 <h1>Congratulations, ${Name}!</h1>
-                <p>We are excited to have you on board. To get started, please verify your email address using the verification code below:</p>
-                <div className="verification-code">${otp}</div>
-                <p>Thank you for joining us at Camro Company. If you have any questions, feel free to contact our support team.</p>
+                <p>We are excited to have you on board. Please verify your email address using the code below:</p>
+                <div class="verification-code">${otp}</div>
+                <p>If you have any questions, feel free to contact our support team.</p>
               </div>
-              <div className="footer">
+              <div class="footer">
                 &copy; ${new Date().getFullYear()} Camro Company. All rights reserved.
               </div>
             </div>
           </body>
-        </html>
-      `,
+        </html>`,
     };
 
-    // Note: Ensure `verificationCode` variable is defined and contains the actual verification code.
-
-
-
-
-    // Save the new user to the database
-    await newUser.save();
-    // Send welcome email
+    // Send welcome email with verification code
     await sendEmail(emailOptions);
+
     return res.status(200).json({
       success: true,
       data: newUser,
-      message: 'Registration successful',
+      message: 'Registration successful. Verification email sent.',
     });
   } catch (error) {
     console.error('Error during user registration:', error);
@@ -303,49 +263,48 @@ exports.RegisterUser = async (req, res) => {
   }
 };
 
-
+// Verify OTP
 exports.verifyOtpForSignIn = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    // Validate email format
-    if (!email || !isValidEmail(email)) {
+    // Validate email and OTP
+    if (!email) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid email address',
       });
     }
 
-    // Validate OTP format (numeric string of length 6)
-    if (!otp || !/^\d{6}$/.test(otp)) {
+    if (!otp || otp.length !== 6) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid OTP',
       });
     }
 
-    const existingUserByMail = await User.findOne({ Email: email });
-    if (!existingUserByMail) {
+    const user = await User.findOne({ Email: email });
+
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not registered',
       });
     }
 
-    // Check if user is already verified
-    if (existingUserByMail.isActive) {
+    if (user.isActive) {
       return res.status(400).json({
         success: false,
         message: 'User is already verified',
       });
     }
 
-    // Check if OTP matches and is within the expiration time
-    if (existingUserByMail.OtpForVerification === otp && existingUserByMail.isActive === false) {
-      // Verify user
-      existingUserByMail.isActive = true;
-      await existingUserByMail.save();
+    // Verify OTP
+    if (user.OtpForVerification == otp) {
+      user.isActive = true;
+      await user.save();
 
+      // Send verification success email
       const emailOptions = {
         email: email,
         subject: 'Welcome to Camro Company - Verification Successful',
@@ -355,103 +314,82 @@ exports.verifyOtpForSignIn = async (req, res) => {
               <style>
                 body {
                   font-family: Arial, sans-serif;
-                  margin: 0;
-                  padding: 0;
                   background-color: #f6f6f6;
                 }
                 .container {
                   width: 100%;
-                  padding: 20px;
+                  max-width: 600px;
                   background-color: #ffffff;
+                  margin: 20px auto;
+                  padding: 20px;
                   border-radius: 10px;
                   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                  margin: 20px auto;
-                  max-width: 600px;
                 }
                 .header {
                   background-color: #0044cc;
-                  padding: 10px;
-                  border-radius: 10px 10px 0 0;
-                  text-align: center;
                   color: #ffffff;
+                  padding: 10px;
+                  text-align: center;
+                  border-radius: 10px 10px 0 0;
                 }
                 .content {
                   padding: 20px;
                   text-align: center;
                 }
-                .content h1 {
-                  color: #333333;
-                }
-                .content p {
-                  font-size: 16px;
-                  color: #666666;
-                }
                 .button {
-                  display: inline-block;
-                  margin: 20px 0;
-                  padding: 10px 20px;
-                  font-size: 16px;
-                  color: #ffffff;
                   background-color: #0044cc;
-                  border-radius: 5px;
+                  color: white;
+                  padding: 10px 20px;
                   text-decoration: none;
+                  border-radius: 5px;
                 }
                 .footer {
                   text-align: center;
-                  padding: 20px;
                   font-size: 12px;
                   color: #999999;
+                  padding: 20px;
                 }
               </style>
             </head>
             <body>
-              <div className="container">
-                <div className="header">
+              <div class="container">
+                <div class="header">
                   <h2>Welcome to Camro Company</h2>
                 </div>
-                <div className="content">
-                  <h1>Congratulations, ${existingUserByMail.Name}!</h1>
-                  <p>Your email has been successfully verified. We are excited to have you on board.</p>
-                  <a target="_blank" href="https://camrosteel.com/" className="button">Visit Our Website</a>
-                  <p>Thank you for joining us at Camro Company. If you have any questions, feel free to contact our support team.</p>
+                <div class="content">
+                  <h1>Welcome, ${user.Name}!</h1>
+                  <p>Your email has been successfully verified.</p>
+                  <a href="https://camrosteel.com/" class="button">Visit Our Website</a>
                 </div>
-                <div className="footer">
+                <div class="footer">
                   &copy; ${new Date().getFullYear()} Camro Company. All rights reserved.
                 </div>
               </div>
             </body>
-          </html>
-        `,
+          </html>`,
       };
-      try {
-        await sendEmail(emailOptions);
-      } catch (error) {
-        console.error('Error sending verification email:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Error sending verification email',
-        });
-      }
+
+      await sendEmail(emailOptions);
 
       return res.status(200).json({
         success: true,
         message: 'User verified successfully',
       });
     } else {
-      // Optional: Implement account deletion or another action after a certain number of failed attempts
       return res.status(401).json({
         success: false,
         message: 'Invalid OTP',
       });
     }
   } catch (error) {
-    console.error('Error during user verification:', error);
+    console.error('Error during OTP verification:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal Server Error',
     });
   }
 };
+
 exports.ResendSignOtp = async (req, res) => {
   try {
     const { email } = req.body;
